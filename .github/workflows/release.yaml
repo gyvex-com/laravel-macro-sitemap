@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract changelog entry for this version
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Version: $VERSION"
+
+          START_LINE=$(grep -n "^## \[${VERSION}\]" CHANGELOG.md | head -n1 | cut -d: -f1)
+
+          if [ -z "$START_LINE" ]; then
+            echo "No changelog entry found for version $VERSION" > release_notes.md
+          else
+            sed -n "${START_LINE},/^## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+          fi
+
+          cat release_notes.md
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Packagist
+        if: env.PACKAGIST_USERNAME != ''
+        run: |
+          curl -sS "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"repository":{"url":"https://github.com/gyvex-com/laravel-macro-sitemap"}}'
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
