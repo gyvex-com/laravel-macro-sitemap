@@ -1,7 +1,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/gyvex-com/laravel-macro-sitemap.svg?style=flat-square)](https://packagist.org/packages/gyvex-com/laravel-macro-sitemap)
 [![Total Downloads](https://img.shields.io/packagist/dt/gyvex-com/laravel-macro-sitemap.svg?style=flat-square)](https://packagist.org/packages/gyvex-com/laravel-macro-sitemap)
-![Laravel Versions](https://img.shields.io/badge/Laravel-^10|^11|^12.*-blue)
-![PHP Versions](https://img.shields.io/badge/PHP->_8.1-blue)
+![Laravel Versions](https://img.shields.io/badge/Laravel-^12|^13.*-blue)
+![PHP Versions](https://img.shields.io/badge/PHP->=_8.3-blue)
 
 ---
 
