@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (without the leading v, e.g. 1.0.0)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -20,7 +26,8 @@ jobs:
       - name: Extract changelog entry for this version
         id: changelog
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
           echo "Version: $VERSION"
 
           START_LINE=$(grep -n "^## \[${VERSION}\]" CHANGELOG.md | head -n1 | cut -d: -f1)
@@ -33,9 +40,12 @@ jobs:
 
           cat release_notes.md
 
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
           body_path: release_notes.md
           generate_release_notes: false
         env:
